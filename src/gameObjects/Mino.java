@@ -37,10 +37,24 @@ public class Mino {
 		
 	}
 	
-	public Mino(int row, int column) {
+	public Mino(int form, int row, int column) {
 		
 		this.mino = new Rectangle(30, 30);
-		this.mino.setFill(Color.RED);
+		if(form == 0) { //I Piece
+			this.mino.setFill(Color.CADETBLUE);
+		} else if(form == 1) { //Square Piece
+			this.mino.setFill(Color.CADETBLUE);
+		} else if(form == 2) { //L Piece
+			this.mino.setFill(Color.LIGHTBLUE);
+		} else if(form == 3) { //2nd L Piece
+			this.mino.setFill(Color.CORNFLOWERBLUE);
+		} else if(form == 4) { //T Piece
+			this.mino.setFill(Color.CADETBLUE);
+		} else if(form == 5) { //Z Piece
+			this.mino.setFill(Color.CORNFLOWERBLUE);
+		} else if(form == 6) { // S Piece
+			this.mino.setFill(Color.LIGHTBLUE);
+		} 
 		
 		this.mino.setLayoutX(5 + (column * 35));
 		this.mino.setLayoutY(5 + (row * 35));

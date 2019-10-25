@@ -20,15 +20,14 @@ public class Main extends Application {
 	static AnimationTimer timer;
 	
 	static Random random;
+	
 	static Tetromino currentTetromino;
-	static ArrayList<Mino> minoList;
+	public static ArrayList<Mino> minoList;
 	
 	public static float controllerDropMod;
 	public static float levelDropMod;
 	
-	static 
-	
-	public boolean shouldPlace() {
+	static public boolean shouldPlace() {
 		
 		for(int i = 0; i < 4; i++) {
 			if(currentTetromino.getMino(i).getRow() == -19) {
@@ -59,10 +58,63 @@ public class Main extends Application {
 		
 	}
 	
+	public boolean anyFullRows() {
+		
+		int[] rows = new int[20];
+		
+		for(int i = 0; i < minoList.size(); i++)
+			for(int j = 0; j < 20; j++)
+				if(minoList.get(i).getRow() == (-19 + j))
+					rows[j]++;
+		
+		for(int i = 0; i < 20; i++)
+			if(rows[i] == 10)
+				return true;
+		
+		return false;
+		
+	}
+	
+	public void deleteFullRows() {
+		
+		int[] rows = new int[20];
+		int[] rowsRemoved = new int[4];
+		int rowRemovedIndex = 0;
+		
+		for(int i = 0; i < minoList.size(); i++)
+			for(int j = 0; j < 20; j++)
+				if(minoList.get(i).getRow() == (-19 + j))
+					rows[j]++;
+		
+		for(int i = 0; i < 20; i++) { //Goes through the rows
+			if(rows[i] == 10) { //If the row is full
+				rowsRemoved[rowRemovedIndex++] = (-19 + i);
+				for(int j = 0; j < minoList.size(); j++) { //Goes through all the minos
+					if(minoList.get(j).getRow() == (-19 + i)) { //If the minos have the right row
+						minoList.get(j).setTranslate(-100, 0);
+						minoList.remove(j--);
+					}
+				}
+			}
+		}
+			
+		for(int i = 0; i < rowRemovedIndex; i++)
+			for(int j = 0; j < minoList.size(); j++)
+				if(minoList.get(j).getRow() > rowsRemoved[i] - i)
+					minoList.get(j).setTranslate(-1, 0);
+		
+	}
+	
 	public void loop(long now) {
 		
-		if(shouldPlace()) {
-			place();
+		deleteFullRows();
+		
+		if(Controller.xButton.getState()) {
+			currentTetromino.rotateCw();
+		}
+		
+		if(Controller.zButton.getState()) {
+			currentTetromino.rotateCcw();
 		}
 		
 		if(Controller.leftButton.getState(now)) {
@@ -76,12 +128,14 @@ public class Main extends Application {
 		}
 		
 		if(Controller.downButton.getState(now)) {
-			controllerDropMod = 3.0f;
+			controllerDropMod = 15.0f;
 		} else {
 			controllerDropMod = 1.0f;
 		}
 		
 		if(currentTetromino.cooledDown(now)) {
+			if(shouldPlace())
+				place();
 			currentTetromino.setTranslate(-1, 0);
 			currentTetromino.startCooldown(now);
 		}
@@ -92,7 +146,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		
 		root = new Pane();
-		scene = new Scene(root, (35 * 15) + 5, (35 * 20) + 5);
+		scene = new Scene(root, (35 * 10) + 5, (35 * 20) + 5);
 		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		controller = new Controller(scene);
 		
@@ -102,7 +156,7 @@ public class Main extends Application {
 		random = new Random();
 		
 		minoList = new ArrayList<Mino>();
-		currentTetromino = new Tetromino((int) (random.nextDouble() * 7), 0, 4);
+		currentTetromino = new Tetromino((int) (random.nextDouble() * 7), 0, 4); //random.nextDouble() * 7
 		root.getChildren().addAll(currentTetromino.getNodes());
 		
 		controllerDropMod = 1.0f;
